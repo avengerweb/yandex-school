@@ -1,4 +1,4 @@
-const MyForm = (function () {
+window.MyForm = (function () {
 
     let app = new Vue({
         el: '#app',
@@ -30,14 +30,17 @@ const MyForm = (function () {
                 if (!this.isValidEmail(this.fields.email))
                     this.errorFields.push("email");
 
-                return { isValid: this.errorFields.length === 0, errorFields: this.errorFields};
+                return { isValid: this.errorFields.length === 0, errorFields: Object.assign({}, this.errorFields)};
             },
             getData() {
                 // will remove references of objects
                 return Object.assign({}, this.fields);
             },
             setData(fields) {
-                Object.assign(this.fields, fields);
+                Object.keys(this.fields).forEach(key => { // let ignore unknown keys
+                    if (typeof fields[key] !== 'undefined')
+                        this.fields[key] = fields[key]
+                });
             },
             submit() {
                 if (this.isPending) {
