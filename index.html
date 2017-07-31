@@ -4,7 +4,21 @@
     <meta charset="UTF-8">
     <title>Yandex School</title>
 </head>
+<style>
+    .error {
+        border: 1px solid red;
+    }
+</style>
 <body>
+
+<div id="app">
+    <form action="resource/success.json">
+        <input name="fio" v-model="fields.fio" :class="{error: hasError('fio')}" required/>
+        <input name="email" type="email" v-model="fields.email" :class="{error: hasError('email')}" required/>
+        <input name="phone" type="tel" v-model="fields.phone" :class="{error: hasError('phone')}" required/>
+        <button id="submitButton" @click.prevent="submit">Submit</button>
+    </form>
+</div>
 
 <link type="text/css" href="vendor/normalize.css">
 <script src="vendor/vue.js"></script>
