@@ -9,7 +9,13 @@ const MyForm = (function () {
                 phone: ''
             },
             errorFields: [],
-            loading: false
+            loading: false,
+            isPending: false,
+            endpoint: null,
+            result: {
+                className: '',
+                text: ''
+            }
         },
         methods: {
             validate() {
@@ -24,7 +30,7 @@ const MyForm = (function () {
                 if (!this.isValidEmail(this.fields.email))
                     this.errorFields.push("email");
 
-                return { isValid: this.errorFields.length, errorFields: this.errorFields};
+                return { isValid: this.errorFields.length === 0, errorFields: this.errorFields};
             },
             getData() {
                 // will remove references of objects
@@ -34,9 +40,61 @@ const MyForm = (function () {
                 Object.assign(this.fields, fields);
             },
             submit() {
-                this.validate();
-                console.log(this.errorFields);
+                if (this.isPending) {
+                    console.warn('Request already in pending state');
+                    return;
+                }
+
+                let result = this.validate();
+                if (result.isValid) {
+                    this.loading = true;
+                    this.isPending = true;
+
+                    axios.post(this.endpoint, this.getData()).then(response =>
+                    {
+                        let data = response.data;
+
+                        this.isPending = false;
+
+                        this.result.className = data.status;
+
+                        switch (data.status)
+                        {
+                            case 'success' : {
+                                this.result.text = 'Success';
+                                this.loading = false;
+                                break;
+                            }
+                            case 'error' : {
+                                this.result.text = data.reason;
+                                this.loading = false;
+                                break;
+                            }
+                            case 'progress' : {
+                                this.result.text = '';
+                                this.delayRequest(data.timeout);
+                                break;
+                            }
+                        }
+
+                    }).catch(error => {
+                        this.loading = false;
+                        this.isPending = false;
+
+                        console.error(error);
+                    })
+                }
             },
+            delayRequest(timeout) {
+                setTimeout(() =>
+                {
+                    if (this.isPending) // if request already in pending state, wait result...
+                        this.delayRequest(100);
+                    else
+                        this.submit();
+                }, timeout)
+            },
+
             hasError(field) {
                 return this.errorFields.includes(field);
             },
@@ -59,6 +117,9 @@ const MyForm = (function () {
             isValidString(value) { // valid and not empty string
                 return typeof value === 'string' && value.trim().length > 0;
             }
+        },
+        mounted() {
+            this.endpoint = this.$refs.form.getAttribute('action')
         }
     });
 

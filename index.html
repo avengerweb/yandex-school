@@ -2,25 +2,38 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>Yandex School</title>
 </head>
-<style>
-    .error {
-        border: 1px solid red;
-    }
-</style>
 <body>
 
 <div id="app">
-    <form action="resource/success.json">
-        <input name="fio" v-model="fields.fio" :class="{error: hasError('fio')}" required/>
-        <input name="email" type="email" v-model="fields.email" :class="{error: hasError('email')}" required/>
-        <input name="phone" type="tel" v-model="fields.phone" :class="{error: hasError('phone')}" required/>
-        <button id="submitButton" @click.prevent="submit">Submit</button>
+    <form action="api/error.json" id="myForm" ref="form">
+        <div class="input-holder">
+            <input name="fio" placeholder="ФИО через пробел" v-model="fields.fio" class="input-holder__input"
+                   :disabled="loading"
+                   :class="{error: hasError('fio')}" required/>
+        </div>
+        <div class="input-holder">
+            <input name="email" placeholder="Email, только яндекс" type="email" v-model="fields.email"
+                   :disabled="loading"
+                   class="input-holder__input" :class="{error: hasError('email')}" required/>
+        </div>
+        <div class="input-holder">
+            <input name="phone" placeholder="+7(999)999-99-99" type="tel" v-model="fields.phone"
+                   :disabled="loading"
+                   class="input-holder__input" :class="{error: hasError('phone')}" required/>
+        </div>
+        <button id="submitButton" @click.prevent="submit" :disabled="loading">Submit</button>
     </form>
+    <div id="resultContainer" v-show="!loading && result.className" :class="result.className" v-html="result.text">
+    </div>
 </div>
 
-<link type="text/css" href="vendor/normalize.css">
+<link type="text/css" rel="stylesheet" href="vendor/normalize.css">
+<link type="text/css" rel="stylesheet" href="app.css">
 <script src="vendor/vue.js"></script>
 <script src="vendor/axios.js"></script>
 <script src="index.js"></script>
